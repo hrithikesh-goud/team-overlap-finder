@@ -27,6 +27,11 @@
           <button type="button" id="next-day" aria-label="Next day">›</button>
         </div>
         <p class="your-zone">Times across the top are in <strong id="your-zone"></strong></p>
+        <button type="button" class="share-btn" id="share-btn">Copy share link</button>
+      </div>
+      <div class="share-result" id="share-result" hidden>
+        <p id="share-status" role="status"></p>
+        <input id="share-output" type="text" readonly aria-label="Share link">
       </div>
 
       <div class="board-scroll">
@@ -66,8 +71,8 @@
     </section>
 
     <div class="example-note" id="example-note" hidden>
-      <p>This is an example team so you can see how it works.</p>
-      <button type="button" id="clear-example">Clear and start my own</button>
+      <p id="note-text"></p>
+      <button type="button" id="note-action"></button>
     </div>
 
     <footer class="foot">Everything is saved in your browser. Nothing is sent anywhere.</footer>

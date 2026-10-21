@@ -139,9 +139,40 @@ function mostPeopleSlots(slots) {
   return { count: max, indexes };
 }
 
+// Share links: the team lives in the URL hash as a small JSON list of
+// [name, zone, start, end] so it can be shared without a backend.
+const MAX_SHARED = 20;
+
+function encodeTeam(members) {
+  const compact = members.map(m => [m.name, m.zone, m.start, m.end]);
+  return encodeURIComponent(JSON.stringify(compact));
+}
+
+// Returns a clean list of members, or null if the link is broken or tampered with.
+function decodeTeam(encoded) {
+  let list;
+  try {
+    list = JSON.parse(decodeURIComponent(encoded));
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(list) || list.length === 0) return null;
+
+  const members = [];
+  for (const row of list.slice(0, MAX_SHARED)) {
+    if (!Array.isArray(row) || row.length !== 4) return null;
+    const [name, zone, start, end] = row;
+    const okHours = Number.isInteger(start) && Number.isInteger(end) &&
+      start >= 0 && start <= 23 && end >= 1 && end <= 24 && start !== end;
+    if (typeof name !== "string" || !name.trim() || !okHours || !isValidZone(zone)) return null;
+    members.push({ name: name.trim().slice(0, 30), zone, start, end });
+  }
+  return members;
+}
+
 const TimeMath = {
   allTimeZones, cityFromZone, isValidZone, resolveZone, localTime, formatTime,
-  isWorkingSlot, buildSlots, bestOverlap, mostPeopleSlots
+  isWorkingSlot, buildSlots, bestOverlap, mostPeopleSlots, encodeTeam, decodeTeam
 };
 
 if (typeof module !== "undefined" && module.exports) {

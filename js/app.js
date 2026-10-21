@@ -8,7 +8,7 @@ const EXAMPLE_TEAM = [
 ];
 
 let team = [];
-let isExample = false;
+let mode = "saved"; // "saved", "example" or "shared" (opened from someone's link)
 let dayOffset = 0; // 0 = today, 1 = tomorrow...
 
 const els = {
@@ -23,7 +23,13 @@ const els = {
   end: document.getElementById("end"),
   formError: document.getElementById("form-error"),
   zoneList: document.getElementById("zone-list"),
-  exampleNote: document.getElementById("example-note")
+  note: document.getElementById("example-note"),
+  noteText: document.getElementById("note-text"),
+  noteAction: document.getElementById("note-action"),
+  shareBtn: document.getElementById("share-btn"),
+  shareResult: document.getElementById("share-result"),
+  shareStatus: document.getElementById("share-status"),
+  shareOutput: document.getElementById("share-output")
 };
 
 function newId() {
@@ -33,6 +39,17 @@ function newId() {
 /* ---------- saving ---------- */
 
 function loadTeam() {
+  // a share link wins over whatever is saved, but isn't saved until the user says so
+  const shared = location.hash.match(/^#team=(.+)$/);
+  if (shared) {
+    const members = TimeMath.decodeTeam(shared[1]);
+    if (members) {
+      team = members.map(m => ({ ...m, id: newId() }));
+      mode = "shared";
+      return;
+    }
+  }
+
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (Array.isArray(saved)) {
@@ -43,16 +60,59 @@ function loadTeam() {
     // storage blocked or corrupted - just start fresh
   }
   team = EXAMPLE_TEAM.map(m => ({ ...m, id: newId() }));
-  isExample = true;
+  mode = "example";
 }
 
 function saveTeam() {
-  isExample = false;
+  mode = "saved";
+  els.shareResult.hidden = true;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(team));
   } catch {
     // not critical, the team still works for this visit
   }
+  // drop the old share link from the address bar once the team is the user's own
+  if (location.hash) {
+    try { history.replaceState(null, "", location.pathname + location.search); } catch { /* file:// in some browsers */ }
+  }
+}
+
+/* ---------- copying ---------- */
+
+// Clipboard can be blocked, so the caller always gets told whether it worked.
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function shareLink() {
+  const base = location.href.split("#")[0];
+  return `${base}#team=${TimeMath.encodeTeam(team)}`;
+}
+
+async function onShare() {
+  const link = shareLink();
+  els.shareOutput.value = link;
+  els.shareResult.hidden = false;
+  const copied = await copyText(link);
+  els.shareStatus.textContent = copied
+    ? "Link copied. Anyone who opens it sees this team. Nothing is stored on a server."
+    : "Copy this link and send it to your team:";
+  if (!copied) els.shareOutput.select();
+}
+
+function inviteText(startDate, endDate) {
+  const day = startDate.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+  const lines = team.map(m => {
+    const from = TimeMath.formatTime(TimeMath.localTime(m.zone, startDate));
+    const to = TimeMath.formatTime(TimeMath.localTime(m.zone, endDate));
+    return `${m.name} (${TimeMath.cityFromZone(m.zone)}): ${from}–${to}`;
+  });
+  return [`Team meeting on ${day}`, ...lines].join("\n");
 }
 
 /* ---------- setup ---------- */
@@ -104,7 +164,8 @@ function dayText() {
 function render() {
   els.dayLabel.textContent = dayText();
   els.yourZone.textContent = yourZone.replace(/_/g, " ");
-  els.exampleNote.hidden = !isExample || team.length === 0;
+  els.shareBtn.disabled = team.length === 0;
+  renderNote();
 
   const dates = slotDates();
   const slots = TimeMath.buildSlots(team, dates);
@@ -112,6 +173,20 @@ function render() {
 
   renderSummary(dates, slots, best);
   renderBoard(dates, slots, best);
+}
+
+function renderNote() {
+  if (mode === "example" && team.length) {
+    els.noteText.textContent = "This is an example team so you can see how it works.";
+    els.noteAction.textContent = "Clear and start my own";
+    els.note.hidden = false;
+  } else if (mode === "shared") {
+    els.noteText.textContent = "You're looking at a team someone shared with you. It isn't saved yet.";
+    els.noteAction.textContent = "Save as my team";
+    els.note.hidden = false;
+  } else {
+    els.note.hidden = true;
+  }
 }
 
 function renderSummary(dates, slots, best) {
@@ -143,7 +218,17 @@ function renderSummary(dates, slots, best) {
     s.innerHTML = `<p class="label">Best time for everyone ${dayText().toLowerCase()}</p>
       <p class="big">${TimeMath.formatTime(TimeMath.localTime(yourZone, startDate))}–${TimeMath.formatTime(TimeMath.localTime(yourZone, endDate))}</p>
       <p class="sub">${best.length} ${hoursWord} when all ${team.length} of you are working. In each person's time:</p>
-      <ul class="locals">${locals}</ul>`;
+      <ul class="locals">${locals}</ul>
+      <div class="invite-row">
+        <button type="button" class="invite-btn" id="invite-btn">Copy meeting invite</button>
+        <span id="invite-status" role="status"></span>
+      </div>`;
+
+    document.getElementById("invite-btn").addEventListener("click", async () => {
+      const status = document.getElementById("invite-status");
+      const copied = await copyText(inviteText(startDate, endDate));
+      status.textContent = copied ? "Copied. Paste it into Slack, Discord or an email." : "Couldn't copy here. Try a different browser.";
+    });
     return;
   }
 
@@ -266,7 +351,7 @@ els.form.addEventListener("submit", e => {
     return;
   }
 
-  if (isExample) team = [];
+  if (mode === "example") team = [];
   team.push({ id: newId(), name, zone, start, end });
   saveTeam();
 
@@ -280,12 +365,16 @@ els.form.addEventListener("submit", e => {
 document.getElementById("prev-day").addEventListener("click", () => { dayOffset--; render(); });
 document.getElementById("next-day").addEventListener("click", () => { dayOffset++; render(); });
 
-document.getElementById("clear-example").addEventListener("click", () => {
-  team = [];
-  saveTeam();
+els.noteAction.addEventListener("click", () => {
+  if (mode === "example") {
+    team = [];
+    els.name.focus();
+  }
+  saveTeam(); // for a shared team this keeps it as the user's own
   render();
-  els.name.focus();
 });
+
+els.shareBtn.addEventListener("click", onShare);
 
 // keep the "now" line and local times fresh
 setInterval(render, 60 * 1000);

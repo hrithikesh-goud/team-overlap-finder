@@ -63,6 +63,27 @@ test("no full overlap falls back to the slots with the most people", () => {
   assert.ok(most.indexes.includes(13)); // Dublin + New York
 });
 
+test("a shared team survives the round trip through a link", () => {
+  const team = [
+    { id: "a", name: "Hrithikesh", zone: "Europe/Dublin", start: 9, end: 17 },
+    { id: "b", name: "Priya & co", zone: "Asia/Kolkata", start: 22, end: 6 }
+  ];
+  const back = T.decodeTeam(T.encodeTeam(team));
+  assert.deepEqual(back, [
+    { name: "Hrithikesh", zone: "Europe/Dublin", start: 9, end: 17 },
+    { name: "Priya & co", zone: "Asia/Kolkata", start: 22, end: 6 }
+  ]);
+});
+
+test("broken or tampered share links are rejected", () => {
+  assert.equal(T.decodeTeam("not json"), null);
+  assert.equal(T.decodeTeam(encodeURIComponent("[]")), null);
+  assert.equal(T.decodeTeam(encodeURIComponent('[["Sam","Mars/Base",9,17]]')), null);
+  assert.equal(T.decodeTeam(encodeURIComponent('[["Sam","UTC",9,9]]')), null);
+  assert.equal(T.decodeTeam(encodeURIComponent('[["Sam","UTC",9,30]]')), null);
+  assert.equal(T.decodeTeam(encodeURIComponent('[["","UTC",9,17]]')), null);
+});
+
 test("bestOverlap prefers the longest block, then the earliest", () => {
   const slots = [[1], [], [1], [1], [], [1], [1]].map(w => ({ working: w }));
   assert.deepEqual(T.bestOverlap(slots, 1), { start: 2, length: 2 });

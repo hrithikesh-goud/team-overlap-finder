@@ -125,7 +125,35 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   line-height: 1;
 }
 
-.your-zone { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.your-zone { margin: 0; color: var(--muted); font-size: 0.92rem; margin-left: auto; }
+
+.share-btn, .invite-btn {
+  border: 1.5px solid var(--ink);
+  background: none;
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 7px 14px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.share-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.share-result { margin: -4px 0 14px; }
+.share-result p { margin: 0 0 6px; font-size: 0.9rem; color: var(--muted); }
+
+.share-result input {
+  width: 100%;
+  font: 500 0.82rem var(--mono);
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--day);
+  color: var(--ink);
+}
+
+.invite-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+.invite-row span { font-size: 0.9rem; color: var(--muted); }
 .your-zone strong { color: var(--ink); }
 
 .board-scroll { overflow-x: auto; }

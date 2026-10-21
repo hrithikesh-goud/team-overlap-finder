@@ -11,6 +11,8 @@ Add each teammate's city and working hours. You'll see everyone's day on one boa
 - 24-hour board in your local time, showing working hours, night hours and a line for the current hour
 - Best meeting time, shown in your time and in each teammate's local time
 - If no hour works for everyone, it shows the hour that suits the most people
+- **Copy share link**: the team is stored in the link itself, so teammates open the same board with no sign-up and no server
+- **Copy meeting invite**: a ready-to-paste message with the meeting time in everyone's local time
 - Move between days, which matters around daylight saving changes
 - Your team is saved in the browser (`localStorage`), so it's still there next time
 - Works on phones; the board scrolls sideways and opens at the current hour
@@ -22,6 +24,10 @@ The board has 24 one-hour slots for the chosen day in your time zone. For each s
 The best meeting time is the longest unbroken run of slots where everyone is working. If two runs are the same length, the earlier one wins.
 
 All of this lives in `js/time.js`, which has no DOM code so it can be tested on its own.
+
+## How share links work
+
+The team is turned into a small JSON list of `[name, zone, start, end]` and put in the URL after `#team=`. Anything after `#` never reaches the server, so the link carries the whole team without needing a database. When someone opens a link, every entry is checked (valid time zone, hours between 0 and 24, a name), and a broken or edited link is ignored. A shared team isn't saved over your own until you click **Save as my team**.
 
 ## Run it
 
@@ -53,6 +59,5 @@ HTML, CSS and JavaScript with no frameworks or libraries. Time zones come from t
 
 ## Ideas for next
 
-- Share a team with a link
 - Let each person set different hours per day
 - Mark public holidays per country
