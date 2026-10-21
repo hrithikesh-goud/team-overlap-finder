@@ -1,0 +1,12 @@
+{
+  "name": "team-overlap-finder",
+  "version": "1.0.0",
+  "description": "See when your team's working hours overlap across time zones.",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
