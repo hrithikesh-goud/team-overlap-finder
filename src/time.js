@@ -1,4 +1,4 @@
-// Pure time-zone helpers. No DOM in here so it can be tested with Node.
+// Pure time-zone helpers. No React or DOM in here, so it can be tested with Node.
 
 const CITY_ALIASES = {
   "bengaluru": "Asia/Kolkata",
@@ -170,11 +170,7 @@ function decodeTeam(encoded) {
   return members;
 }
 
-const TimeMath = {
+export {
   allTimeZones, cityFromZone, isValidZone, resolveZone, localTime, formatTime,
   isWorkingSlot, buildSlots, bestOverlap, mostPeopleSlots, encodeTeam, decodeTeam
 };
-
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = TimeMath;
-}
