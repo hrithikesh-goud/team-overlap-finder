@@ -1,6 +1,6 @@
-const test = require("node:test");
-const assert = require("node:assert/strict");
-const T = require("../js/time.js");
+import test from "node:test";
+import assert from "node:assert/strict";
+import * as T from "../src/time.js";
 
 const at = iso => new Date(iso);
 

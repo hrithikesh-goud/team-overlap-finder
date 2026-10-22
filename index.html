@@ -8,77 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
-  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <main class="page">
-    <header class="top">
-      <h1>Team Overlap Finder</h1>
-      <p class="tagline">Add where your teammates are. See the hours you can all meet.</p>
-    </header>
-
-    <section class="summary" id="summary" aria-live="polite"></section>
-
-    <section class="board-section">
-      <div class="board-head">
-        <div class="day-nav" role="group" aria-label="Choose day">
-          <button type="button" id="prev-day" aria-label="Previous day">‹</button>
-          <span id="day-label"></span>
-          <button type="button" id="next-day" aria-label="Next day">›</button>
-        </div>
-        <p class="your-zone">Times across the top are in <strong id="your-zone"></strong></p>
-        <button type="button" class="share-btn" id="share-btn">Copy share link</button>
-      </div>
-      <div class="share-result" id="share-result" hidden>
-        <p id="share-status" role="status"></p>
-        <input id="share-output" type="text" readonly aria-label="Share link">
-      </div>
-
-      <div class="board-scroll">
-        <div class="board" id="board" role="table" aria-label="Working hours for each teammate"></div>
-      </div>
-
-      <ul class="legend">
-        <li><span class="swatch work"></span>Working</li>
-        <li><span class="swatch night"></span>Night (22:00–06:00 local)</li>
-        <li><span class="swatch overlap"></span>Everyone working</li>
-      </ul>
-    </section>
-
-    <section class="add">
-      <h2>Add a teammate</h2>
-      <form id="add-form" novalidate>
-        <div class="field">
-          <label for="name">Name</label>
-          <input id="name" type="text" maxlength="30" placeholder="Priya" required>
-        </div>
-        <div class="field">
-          <label for="city">City or time zone</label>
-          <input id="city" type="text" list="zone-list" placeholder="Bengaluru" required>
-          <datalist id="zone-list"></datalist>
-        </div>
-        <div class="field small">
-          <label for="start">Starts</label>
-          <select id="start"></select>
-        </div>
-        <div class="field small">
-          <label for="end">Finishes</label>
-          <select id="end"></select>
-        </div>
-        <button type="submit" class="primary">Add</button>
-      </form>
-      <p class="form-error" id="form-error" role="alert"></p>
-    </section>
-
-    <div class="example-note" id="example-note" hidden>
-      <p id="note-text"></p>
-      <button type="button" id="note-action"></button>
-    </div>
-
-    <footer class="foot">Everything is saved in your browser. Nothing is sent anywhere.</footer>
-  </main>
-
-  <script src="js/time.js"></script>
-  <script src="js/app.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

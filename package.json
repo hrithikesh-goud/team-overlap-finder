@@ -1,12 +1,24 @@
 {
   "name": "team-overlap-finder",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "See when your team's working hours overlap across time zones.",
   "private": true,
+  "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node --test"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.5"
   }
 }
